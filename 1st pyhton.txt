@@ -1,0 +1,20 @@
+str = "hello world"
+length = len(str)
+result = ""
+
+print("Original string:", str)
+
+# Bitwise AND operation
+for i in range(length):
+    ch = chr(ord(str[i]) & 127)
+    result += ch
+
+print("String after bitwise AND operation with 127:", result)
+
+# Bitwise XOR operation
+result = ""
+for i in range(length):
+    ch = chr(ord(str[i]) ^ 127)
+    result += ch
+
+print("String after bitwise XOR operation with 127:", result)

@@ -1,0 +1,76 @@
+import math
+
+def encrypt_rail_fence(plain_text, key):
+    text_length = len(plain_text)
+    num_of_rows = key
+    num_of_cols = math.ceil(text_length / key)
+    num_of_shaded_boxes = (num_of_cols * num_of_rows) - text_length
+    cipher_text = ''
+    rail = 0
+
+    for row in range(num_of_rows):
+        for col in range(num_of_cols):
+            if rail == 0 or rail == num_of_rows - 1:
+                if col * num_of_rows + row < text_length:
+                    cipher_text += plain_text[col * num_of_rows + row]
+            else:
+                if (col * num_of_rows + rail) < text_length:
+                    cipher_text += plain_text[col * num_of_rows + rail]
+                if (col * num_of_rows + num_of_rows - rail) < text_length:
+                    cipher_text += plain_text[col * num_of_rows + num_of_rows - rail]
+
+        rail += 1
+
+    return cipher_text
+
+
+def decrypt_rail_fence(cipher_text, key):
+    text_length = len(cipher_text)
+    num_of_rows = key
+    num_of_cols = math.ceil(text_length / key)
+    num_of_shaded_boxes = (num_of_cols * num_of_rows) - text_length
+    plain_text = ''
+    rail = 0
+
+    rail_positions = [0] * text_length
+    index = 0
+
+    for row in range(num_of_rows):
+        for col in range(num_of_cols):
+            if rail == 0 or rail == num_of_rows - 1:
+                if col * num_of_rows + row < text_length:
+                    rail_positions[index] = col * num_of_rows + row
+                    index += 1
+            else:
+                if (col * num_of_rows + rail) < text_length:
+                    rail_positions[index] = col * num_of_rows + rail
+                    index += 1
+                if (col * num_of_rows + num_of_rows - rail) < text_length:
+                    rail_positions[index] = col * num_of_rows + num_of_rows - rail
+                    index += 1
+
+        rail += 1
+
+    plain_text_arr = [''] * text_length
+
+    for i in range(text_length):
+        plain_text_arr[rail_positions[i]] = cipher_text[i]
+
+    plain_text = ''.join(plain_text_arr)
+
+    return plain_text
+
+
+# Input plain text
+plain_text = input("Enter the plain text: ")
+
+# Input key
+key = int(input("Enter the key: "))
+
+# Encryption
+encrypted_text = encrypt_rail_fence(plain_text, key)
+print("Encrypted text:", encrypted_text)
+
+# Decryption
+decrypted_text = decrypt_rail_fence(encrypted_text, key)
+print("Decrypted text:", decrypted_text)

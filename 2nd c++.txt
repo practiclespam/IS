@@ -1,0 +1,104 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+string encryptRailFence(const string& plain_text, int key) {
+    int text_length = plain_text.length();
+    int num_of_rows = key;
+    int num_of_cols = ceil(static_cast<double>(text_length) / key);
+    int num_of_shaded_boxes = (num_of_cols * num_of_rows) - text_length;
+    string cipher_text;
+    int rail = 0;
+
+    for (int row = 0; row < num_of_rows; ++row) {
+        for (int col = 0; col < num_of_cols; ++col) {
+            if (rail == 0 || rail == num_of_rows - 1) {
+                if (col * num_of_rows + row < text_length) {
+                    cipher_text += plain_text[col * num_of_rows + row];
+                }
+            } else {
+                if ((col * num_of_rows + rail) < text_length) {
+                    cipher_text += plain_text[col * num_of_rows + rail];
+                }
+                if ((col * num_of_rows + num_of_rows - rail) < text_length) {
+                    cipher_text += plain_text[col * num_of_rows + num_of_rows - rail];
+                }
+            }
+        }
+        rail++;
+    }
+
+    return cipher_text;
+}
+
+string decryptRailFence(const string& cipher_text, int key) {
+    int text_length = cipher_text.length();
+    int num_of_rows = key;
+    int num_of_cols = ceil(static_cast<double>(text_length) / key);
+    int num_of_shaded_boxes = (num_of_cols * num_of_rows) - text_length;
+    string plain_text;
+    int rail = 0;
+
+    int* rail_positions = new int[text_length];
+    int index = 0;
+
+    for (int row = 0; row < num_of_rows; ++row) {
+        for (int col = 0; col < num_of_cols; ++col) {
+            if (rail == 0 || rail == num_of_rows - 1) {
+                if (col * num_of_rows + row < text_length) {
+                    rail_positions[index++] = col * num_of_rows + row;
+                }
+            } else {
+                if ((col * num_of_rows + rail) < text_length) {
+                    rail_positions[index++] = col * num_of_rows + rail;
+                }
+                if ((col * num_of_rows + num_of_rows - rail) < text_length) {
+                    rail_positions[index++] = col * num_of_rows + num_of_rows - rail;
+                }
+            }
+        }
+        rail++;
+    }
+
+    char* plain_text_arr = new char[text_length];
+
+    for (int i = 0; i < text_length; ++i) {
+        plain_text_arr[rail_positions[i]] = cipher_text[i];
+    }
+
+    for (int i = 0; i < text_length; ++i) {
+        plain_text += plain_text_arr[i];
+    }
+
+    delete[] rail_positions;
+    delete[] plain_text_arr;
+
+    return plain_text;
+}
+
+int main() {
+    string plain_text;
+    int key;
+
+    // Input plain text
+    cout << "Enter the plain text: ";
+    getline(cin, plain_text);
+
+    // Input key
+    cout << "Enter the key: ";
+    cin >> key;
+
+    cin.ignore(); // Ignore the newline character
+
+    // Encryption
+    string encrypted_text = encryptRailFence(plain_text, key);
+    cout << "Encrypted text: " << encrypted_text << endl;
+
+    // Decryption
+    string decrypted_text = decryptRailFence(encrypted_text, key);
+    cout << "Decrypted text: " << decrypted_text << endl;
+
+    return 0;
+}
