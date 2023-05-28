@@ -1,0 +1,63 @@
+JAVA:-
+public class StringManipulation {
+    public static void main(String[] args) {
+        String input = "Hello World";
+        String andResult = "";
+        String xorResult = "";
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            andResult += (char) (c & 127);
+            xorResult += (char) (c ^ 127);
+        }
+
+        System.out.println("AND Result: " + andResult);
+        System.out.println("XOR Result: " + xorResult);
+    }
+}
+
+
+
+
+PYTHON:-
+input_string = "Hello World"
+
+and_result = ""
+xor_result = ""
+
+for char in input_string:
+    and_result += chr(ord(char) & 127)
+    xor_result += chr(ord(char) ^ 127)
+
+print("AND Result:", and_result)
+print("XOR Result:", xor_result)
+
+
+
+
+CPP:-
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    const char* input = "Hello World";
+    char andResult[12];
+    char xorResult[12];
+
+    int i = 0;
+    while (input[i] != '\0') {
+        andResult[i] = input[i] & 127;
+        xorResult[i] = input[i] ^ 127;
+        i++;
+    }
+    andResult[i] = '\0';
+    xorResult[i] = '\0';
+
+    cout << "AND Result: " << andResult << endl;
+    cout << "XOR Result: " << xorResult << endl;
+
+    return 0;
+}
+
+

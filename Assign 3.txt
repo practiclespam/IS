@@ -1,0 +1,117 @@
+JAVA:-
+package is3;
+
+import java.util.Base64;
+import java.util.Scanner;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class DESExample {
+
+    public static void main(String[] args) throws Exception {
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        Scanner sn = new Scanner(System.in);
+        System.out.print("Enter Text: ");
+        String plaintext = sn.nextLine();
+
+        System.out.println("\nIntermediate Results (16 Rounds - Encryption):");
+        byte[] input = plaintext.getBytes();
+        for (int i = 1; i <= 16; i++) {
+            // Pad the input to a multiple of 8 bytes
+            int paddedLength = (int) Math.ceil((double) input.length / 8) * 8;
+            byte[] paddedInput = new byte[paddedLength];
+            System.arraycopy(input, 0, paddedInput, 0, input.length);
+
+            input = performDESRound(paddedInput, secretKey, Cipher.ENCRYPT_MODE);
+            System.out.println("Round " + i + ": " + bytesToHex(input));
+        }
+
+        byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
+        System.out.println("\nEncrypted Message: " + Base64.getEncoder().encodeToString(ciphertext));
+
+        System.out.println("\nIntermediate Results (16 Rounds - Decryption):");
+        byte[] output = input;
+        for (int i = 16; i >= 1; i--) {
+            output = performDESRound(output, secretKey, Cipher.DECRYPT_MODE);
+            System.out.println("Round " + i + ": " + bytesToHex(output));
+        }
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(ciphertext);
+        System.out.println("\nDecrypted Message: " + new String(decryptedBytes));
+    }
+
+    private static byte[] performDESRound(byte[] input, SecretKey key, int cipherMode) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+        cipher.init(cipherMode, key);
+        return cipher.doFinal(input);
+    }
+    
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
+}
+
+
+
+
+
+
+
+PYTHON:-
+from Cryptodome.Cipher import DES
+
+def perform_des_round(input_bytes, key):
+    cipher = DES.new(key, DES.MODE_ECB)
+    return cipher.decrypt(input_bytes)
+
+def perform_des_rounde(input_bytes, key):
+    cipher = DES.new(key, DES.MODE_ECB)
+    return cipher.encrypt(input_bytes)
+    
+def main():
+    key = input("Enter the 8-byte key: ").encode('utf-8')
+    cipher = DES.new(key, DES.MODE_ECB)
+    
+    plaintext = input("Enter the plaintext: ").encode('utf-8')
+    block_size = 8
+    padded_length = (len(plaintext) + block_size - 1) // block_size * block_size
+    padded_plaintext = plaintext.ljust(padded_length, b'\x00')
+
+    ciphertext = cipher.encrypt(padded_plaintext)
+    encoded_ciphertext = ciphertext.hex()
+    print("Encrypted Message (HEX):", encoded_ciphertext)
+
+    print("\nIntermediate Results (16 Rounds - Encryption):")
+    input_bytes = padded_plaintext
+    for i in range(1, 17):
+        input_bytes = perform_des_rounde(input_bytes, key)
+        encoded_input = input_bytes.hex()
+        print(f"Round {i}: {encoded_input}")
+
+    cipher = DES.new(key, DES.MODE_ECB)
+    decrypted_bytes = cipher.decrypt(ciphertext)
+    decrypted_message = decrypted_bytes.rstrip(b'\x00').decode('utf-8')
+    print("\nDecrypted Message:", decrypted_message)
+
+    print("\nIntermediate Results (16 Rounds - Decryption):")
+    output_bytes = input_bytes
+    for i in range(16, 0, -1):
+        output_bytes = perform_des_round(output_bytes, key)
+        encoded_output = output_bytes.hex()
+        print(f"Round {i}: {encoded_output}")
+
+if __name__ == '__main__':
+    main()

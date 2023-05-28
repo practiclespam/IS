@@ -1,0 +1,115 @@
+JAVA:-
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Scanner;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+public class AESExample {
+
+    public static void main(String[] args) throws Exception {
+
+        String keyString = "0123456789abcdef";
+        byte[] keyBytes = keyString.getBytes(StandardCharsets.UTF_8);
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        Scanner sn = new Scanner(System.in);
+        System.out.print("Enter Text: ");
+        String plaintext = sn.nextLine();
+
+        // Pad the input to a multiple of 16 bytes
+        int paddedLength = (int) Math.ceil((double) plaintext.length() / 16) * 16;
+        byte[] paddedInput = new byte[paddedLength];
+        System.arraycopy(plaintext.getBytes(), 0, paddedInput, 0, plaintext.getBytes().length);
+
+        byte[] ciphertext = cipher.doFinal(paddedInput);
+        System.out.println("Encrypted Message: " + Base64.getEncoder().encodeToString(ciphertext));
+
+        System.out.println("\nIntermediate Results (Encryption):");
+        byte[] input = paddedInput;
+        for (int i = 1; i <= 10; i++) {
+            input = performAESRound(input, secretKey, Cipher.ENCRYPT_MODE);
+            System.out.println("Round " + i + ": " + bytesToHex(input));
+        }
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(ciphertext);
+        System.out.println("\nDecrypted Message: " + new String(decryptedBytes));
+
+        System.out.println("\nIntermediate Results (Decryption):");
+        byte[] output = input;
+        for (int i = 10; i >= 1; i--) {
+            output = performAESRound(output, secretKey, Cipher.DECRYPT_MODE);
+            System.out.println("Round " + i + ": " + bytesToHex(output));
+        }
+    }
+
+    private static byte[] performAESRound(byte[] input, SecretKey key, int mode) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        cipher.init(mode, key);
+        return cipher.doFinal(input);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
+}
+
+
+
+PYTHON:-
+from Cryptodome.Cipher import AES
+
+def perform_AES_round(input_bytes, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    return cipher.decrypt(input_bytes)
+
+def perform_AES_rounde(input_bytes, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    return cipher.encrypt(input_bytes)
+    
+def main():
+    key1="0123456789abcdef"
+    key=key1.encode('utf-8')
+    cipher = AES.new(key, AES.MODE_ECB)
+    
+    plaintext = input("Enter the plaintext: ").encode('utf-8')
+    block_size = 16
+    padded_length = (len(plaintext) + block_size - 1) // block_size * block_size
+    padded_plaintext = plaintext.ljust(padded_length, b'\x00')
+
+    ciphertext = cipher.encrypt(padded_plaintext)
+    encoded_ciphertext = ciphertext.hex()
+    print("Encrypted Message (HEX):", encoded_ciphertext)
+
+    print("\nIntermediate Results (16 Rounds - Encryption):")
+    input_bytes = padded_plaintext
+    for i in range(1, 11):
+        input_bytes = perform_AES_rounde(input_bytes, key)
+        encoded_input = input_bytes.hex()
+        print(f"Round {i}: {encoded_input}")
+
+    cipher = AES.new(key, AES.MODE_ECB)
+    decrypted_bytes = cipher.decrypt(ciphertext)
+    decrypted_message = decrypted_bytes.rstrip(b'\x00').decode('utf-8')
+    print("\nDecrypted Message:", decrypted_message)
+
+    print("\nIntermediate Results (16 Rounds - Decryption):")
+    output_bytes = input_bytes
+    for i in range(10, 0, -1):
+        output_bytes = perform_AES_round(output_bytes, key)
+        encoded_output = output_bytes.hex()
+        print(f"Round {i}: {encoded_output}")
+
+if __name__ == '__main__':
+    main()
